@@ -1,0 +1,12 @@
+DevOps Monitoring Report
+========================
+Hostname      : LAPTOP-8054CCKF
+CPU Usage     : 1.6%
+Memory Usage  : 17.7%
+Disk Usage    : 1%
+System Uptime : up 28 minutes
+
+Docker Containers
+-----------------
+devops-frontend | Up 20 minutes
+devops-backend | Up 20 minutes

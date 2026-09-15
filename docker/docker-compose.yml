@@ -1,0 +1,30 @@
+services:
+  backend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: devops-backend
+    ports:
+      - "5000:5000"
+    volumes:
+      - ../reports:/app/reports:ro
+    restart: unless-stopped
+    networks:
+      - devops-network
+
+  frontend:
+    image: nginx:alpine
+    container_name: devops-frontend
+    ports:
+      - "8080:80"
+    volumes:
+      - ../app/frontend:/usr/share/nginx/html:ro
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - devops-network
+
+networks:
+  devops-network:
+    driver: bridge

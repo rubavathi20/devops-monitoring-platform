@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>DevOps Monitoring Platform</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header>
+        <h1>DevOps Monitoring Platform</h1>
+        <p>System & Container Monitoring Dashboard</p>
+    </header>
+
+    <main>
+
+        <section class="status-card">
+            <h2>System Status</h2>
+
+            <div class="status">
+                <span class="status-dot"></span>
+                <span id="system-status">Healthy</span>
+            </div>
+        </section>
+
+
+        <section class="metrics">
+
+            <div class="metric-card">
+                <h3>CPU Usage</h3>
+                <p id="cpu">--%</p>
+            </div>
+
+            <div class="metric-card">
+                <h3>Memory Usage</h3>
+                <p id="memory">--%</p>
+            </div>
+
+            <div class="metric-card">
+                <h3>Disk Usage</h3>
+                <p id="disk">--%</p>
+            </div>
+
+            <div class="metric-card">
+                <h3>Backend</h3>
+                <p id="backend-status">Checking...</p>
+            </div>
+
+        </section>
+
+
+        <section class="container-section">
+
+            <h2>Docker Containers</h2>
+
+            <div class="container-card">
+                <span>Backend Container</span>
+                <span class="running">Running</span>
+            </div>
+
+            <div class="container-card">
+                <span>Frontend Container</span>
+                <span class="running">Running</span>
+            </div>
+
+        </section>
+
+
+        <section class="health-section">
+
+            <h2>Health Check</h2>
+
+            <button onclick="checkHealth()">
+                Check System Health
+            </button>
+
+            <p id="health-result">
+                Waiting for health check...
+            </p>
+
+        </section>
+
+    </main>
+
+
+    <footer>
+        <p>DevOps Monitoring Platform | Linux + Docker + CI/CD</p>
+    </footer>
+
+
+    <script src="script.js"></script>
+
+</body>
+</html>
