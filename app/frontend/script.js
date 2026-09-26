@@ -1,130 +1,183 @@
+// ============================================
 // DevOps Monitoring Platform
 // Frontend JavaScript
+// ============================================
 
 const API_URL = "http://localhost:5000";
 
+// ============================================
+// Backend Health Check
+// ============================================
 
-// Check backend health
 async function checkBackend() {
-
-    const statusElement =
-        document.getElementById("backend-status");
-
-    const systemStatus =
-        document.getElementById("system-status");
+    const statusElement = document.getElementById("backend-status");
+    const systemStatus = document.getElementById("system-status");
 
     try {
-
-        statusElement.textContent = "Checking...";
-
-        const response =
-            await fetch(`${API_URL}/health`);
-
-        if (!response.ok) {
-            throw new Error("Backend unavailable");
+        if (statusElement) {
+            statusElement.textContent = "Checking...";
         }
 
-        const data =
-            await response.json();
+        const response = await fetch(`${API_URL}/health`);
+
+        if (!response.ok) {
+            throw new Error(`HTTP Error: ${response.status}`);
+        }
+
+        const data = await response.json();
 
         if (data.status === "healthy") {
+            if (statusElement) {
+                statusElement.textContent = "Healthy";
+            }
 
-            statusElement.textContent = "Healthy";
-            systemStatus.textContent = "Healthy";
-
+            if (systemStatus) {
+                systemStatus.textContent = "Healthy";
+            }
         } else {
+            if (statusElement) {
+                statusElement.textContent = "Unhealthy";
+            }
 
-            statusElement.textContent = "Unhealthy";
-            systemStatus.textContent = "Unhealthy";
-
+            if (systemStatus) {
+                systemStatus.textContent = "Unhealthy";
+            }
         }
 
     } catch (error) {
+        console.error("Backend health check failed:", error);
 
-        statusElement.textContent = "Offline";
-        systemStatus.textContent = "Backend Offline";
+        if (statusElement) {
+            statusElement.textContent = "Offline";
+        }
 
-        console.error(
-            "Backend health check failed:",
-            error
-        );
+        if (systemStatus) {
+            systemStatus.textContent = "Backend Offline";
+        }
     }
 }
 
 
-// Get real system metrics
+// ============================================
+// Load System Metrics
+// ============================================
+
 async function loadMetrics() {
-
     try {
-
-        const response =
-            await fetch(`${API_URL}/api/metrics`);
+        const response = await fetch(`${API_URL}/api/metrics`);
 
         if (!response.ok) {
-            throw new Error("Metrics API unavailable");
+            throw new Error(`HTTP Error: ${response.status}`);
         }
 
-        const data =
-            await response.json();
+        const data = await response.json();
 
-        const metrics =
-            data.metrics;
+        console.log("Metrics API response:", data);
+
+        const metrics = data.metrics;
+
+        if (!metrics) {
+            throw new Error("Metrics data not found");
+        }
 
         // CPU
-        document.getElementById("cpu").textContent =
-            metrics.cpu || "--%";
+        const cpuElement = document.getElementById("cpu");
+
+        if (cpuElement) {
+            cpuElement.textContent =
+                metrics.cpu !== undefined
+                    ? `${metrics.cpu}%`
+                    : "--%";
+        }
 
         // Memory
-        document.getElementById("memory").textContent =
-            metrics.memory || "--%";
+        const memoryElement = document.getElementById("memory");
+
+        if (memoryElement) {
+            memoryElement.textContent =
+                metrics.memory !== undefined
+                    ? `${metrics.memory}%`
+                    : "--%";
+        }
 
         // Disk
-        document.getElementById("disk").textContent =
-            metrics.disk || "--%";
+        const diskElement = document.getElementById("disk");
 
-        console.log("System metrics:", metrics);
+        if (diskElement) {
+            diskElement.textContent =
+                metrics.disk !== undefined
+                    ? `${metrics.disk}%`
+                    : "--%";
+        }
+
+        // Uptime
+        const uptimeElement = document.getElementById("uptime");
+
+        if (uptimeElement) {
+            uptimeElement.textContent =
+                metrics.uptime !== undefined
+                    ? metrics.uptime
+                    : "--";
+        }
 
     } catch (error) {
+        console.error("Failed to load system metrics:", error);
 
-        console.error(
-            "Failed to load system metrics:",
-            error
-        );
+        const cpuElement = document.getElementById("cpu");
+        const memoryElement = document.getElementById("memory");
+        const diskElement = document.getElementById("disk");
+        const uptimeElement = document.getElementById("uptime");
 
-        document.getElementById("cpu").textContent =
-            "--%";
+        if (cpuElement) {
+            cpuElement.textContent = "--%";
+        }
 
-        document.getElementById("memory").textContent =
-            "--%";
+        if (memoryElement) {
+            memoryElement.textContent = "--%";
+        }
 
-        document.getElementById("disk").textContent =
-            "--%";
+        if (diskElement) {
+            diskElement.textContent = "--%";
+        }
+
+        if (uptimeElement) {
+            uptimeElement.textContent = "--";
+        }
     }
 }
 
 
-// Health check button
-async function checkHealth() {
+// ============================================
+// Manual Health Check
+// ============================================
 
-    const result =
-        document.getElementById("health-result");
+async function checkHealth() {
+    const result = document.getElementById("health-result");
+
+    if (!result) {
+        console.error("health-result element not found");
+        return;
+    }
+
+    result.textContent = "Checking...";
 
     try {
-
-        const response =
-            await fetch(`${API_URL}/health`);
+        const response = await fetch(`${API_URL}/health`);
 
         if (!response.ok) {
-            throw new Error("Health check failed");
+            throw new Error(`HTTP Error: ${response.status}`);
         }
 
-        const data =
-            await response.json();
+        const data = await response.json();
 
-        result.textContent =
-            `System is ${data.status} ✓`;
+        if (data.status === "healthy") {
+            result.textContent = "System is healthy ✓";
+        } else {
+            result.textContent = "System is unhealthy ✗";
+        }
 
     } catch (error) {
+        console.error("Health check failed:", error);
 
         result.textContent =
             "System health check failed ✗";
@@ -132,11 +185,31 @@ async function checkHealth() {
 }
 
 
-// Run when page loads
+// ============================================
+// Refresh Dashboard
+// ============================================
+
+async function refreshDashboard() {
+    await checkBackend();
+    await loadMetrics();
+}
+
+
+// ============================================
+// Page Loaded
+// ============================================
+
 document.addEventListener("DOMContentLoaded", () => {
+    console.log("DevOps Monitoring Platform loaded");
 
-    checkBackend();
-
-    loadMetrics();
-
+    refreshDashboard();
 });
+
+
+// ============================================
+// Automatic Refresh
+// ============================================
+
+setInterval(() => {
+    refreshDashboard();
+}, 10000);
